@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name">FoodChecker</string>
+
+    <string name="history_title">История проверок</string>
+    <string name="history_count">Всего: %1$d</string>
+    <string name="history_empty_title">История пуста</string>
+    <string name="history_empty_hint">Отсканируйте первый продукт, и он появится здесь</string>
+    <string name="search_empty_title">Ничего не найдено</string>
+    <string name="search_empty_hint">По запросу «%1$s» нет проверенных товаров</string>
+    <string name="search_placeholder">Название, бренд или штрихкод</string>
+    <string name="search_clear">Очистить поиск</string>
+    <string name="product_subtitle">%1$s · %2$s</string>
+    <string name="product_found_allergens">Найдено: %1$s</string>
+
+    <string name="verdict_safe">Безопасно</string>
+    <string name="verdict_dangerous">Противопоказано</string>
+    <string name="verdict_unknown">Нет данных</string>
+
+    <string name="scan">Сканировать</string>
+    <string name="scan_unavailable">Сканер штрихкодов появится в следующей версии</string>
+
+    <string name="profile_title">Профиль</string>
+    <string name="profile_open">Открыть профиль</string>
+    <string name="profile_edit">Изменить профиль</string>
+    <string name="profile_no_name">Имя не указано</string>
+    <string name="profile_name_label">Имя</string>
+    <string name="profile_name_error">Введите имя</string>
+    <string name="profile_allergens_title">Критические аллергены</string>
+    <string name="profile_allergens_hint">Отметьте компоненты, которые вам противопоказаны. Вердикты в истории пересчитаются автоматически.</string>
+    <string name="profile_allergens_selected">Выбрано: %1$d</string>
+    <string name="profile_allergens_empty">Аллергены не указаны</string>
+    <string name="back">Назад</string>
+
+    <string name="allergen_peanut">Арахис</string>
+    <string name="allergen_tree_nuts">Орехи</string>
+    <string name="allergen_lactose">Лактоза</string>
+    <string name="allergen_gluten">Глютен</string>
+    <string name="allergen_eggs">Яйца</string>
+    <string name="allergen_soy">Соя</string>
+    <string name="allergen_fish">Рыба</string>
+    <string name="allergen_shellfish">Моллюски</string>
+    <string name="allergen_sesame">Кунжут</string>
+    <string name="allergen_mustard">Горчица</string>
+    <string name="allergen_celery">Сельдерей</string>
+    <string name="allergen_sulfites">Сульфиты</string>
+</resources>
