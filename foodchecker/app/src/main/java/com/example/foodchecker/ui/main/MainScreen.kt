@@ -28,8 +28,6 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -39,26 +37,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import com.example.foodchecker.R
-import com.example.foodchecker.data.MockProductRepository
-import com.example.foodchecker.model.checkFor
 import com.example.foodchecker.ui.components.LoadingPane
+import com.example.foodchecker.ui.preview.PreviewData
 import com.example.foodchecker.ui.theme.FoodCheckerTheme
-import kotlinx.coroutines.launch
 
 @Composable
 fun MainRoute(
     widthSizeClass: WindowWidthSizeClass,
     onOpenProfile: () -> Unit,
-    viewModel: MainViewModel = viewModel(factory = MainViewModel.Factory)
+    onOpenScanner: () -> Unit,
+    onOpenProduct: (String) -> Unit,
+    viewModel: MainViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -66,7 +63,9 @@ fun MainRoute(
         state = uiState,
         widthSizeClass = widthSizeClass,
         onEvent = viewModel::onEvent,
-        onOpenProfile = onOpenProfile
+        onOpenProfile = onOpenProfile,
+        onOpenScanner = onOpenScanner,
+        onOpenProduct = onOpenProduct
     )
 }
 
@@ -76,11 +75,10 @@ fun MainScreen(
     state: MainUiState,
     widthSizeClass: WindowWidthSizeClass,
     onEvent: (MainEvent) -> Unit,
-    onOpenProfile: () -> Unit
+    onOpenProfile: () -> Unit,
+    onOpenScanner: () -> Unit,
+    onOpenProduct: (String) -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
-    val scanMessage = stringResource(R.string.scan_unavailable)
     val gridState = rememberLazyGridState()
     val isFabExpanded by remember {
         derivedStateOf { gridState.firstVisibleItemIndex == 0 }
@@ -105,13 +103,12 @@ fun MainScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { coroutineScope.launch { snackbarHostState.showSnackbar(scanMessage) } },
+                onClick = onOpenScanner,
                 expanded = isFabExpanded,
                 icon = { Icon(Icons.Filled.QrCodeScanner, contentDescription = null) },
                 text = { Text(stringResource(R.string.scan)) }
             )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        }
     ) { innerPadding ->
         Crossfade(
             targetState = state.isLoading,
@@ -124,13 +121,15 @@ fun MainScreen(
                     state = state,
                     gridState = gridState,
                     onEvent = onEvent,
-                    onOpenProfile = onOpenProfile
+                    onOpenProfile = onOpenProfile,
+                    onOpenProduct = onOpenProduct
                 )
                 else -> SinglePaneContent(
                     state = state,
                     gridState = gridState,
                     onEvent = onEvent,
-                    onOpenProfile = onOpenProfile
+                    onOpenProfile = onOpenProfile,
+                    onOpenProduct = onOpenProduct
                 )
             }
         }
@@ -142,11 +141,13 @@ private fun SinglePaneContent(
     state: MainUiState,
     gridState: LazyGridState,
     onEvent: (MainEvent) -> Unit,
-    onOpenProfile: () -> Unit
+    onOpenProfile: () -> Unit,
+    onOpenProduct: (String) -> Unit
 ) {
     HistoryGrid(
         state = state,
         gridState = gridState,
+        onOpenProduct = onOpenProduct,
         modifier = Modifier.fillMaxSize()
     ) {
         fullWidthItem(key = "profile") {
@@ -167,7 +168,8 @@ private fun TwoPaneContent(
     state: MainUiState,
     gridState: LazyGridState,
     onEvent: (MainEvent) -> Unit,
-    onOpenProfile: () -> Unit
+    onOpenProfile: () -> Unit,
+    onOpenProduct: (String) -> Unit
 ) {
     Row(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -189,6 +191,7 @@ private fun TwoPaneContent(
         HistoryGrid(
             state = state,
             gridState = gridState,
+            onOpenProduct = onOpenProduct,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
@@ -200,6 +203,7 @@ private fun TwoPaneContent(
 private fun HistoryGrid(
     state: MainUiState,
     gridState: LazyGridState,
+    onOpenProduct: (String) -> Unit,
     modifier: Modifier = Modifier,
     header: LazyGridScope.() -> Unit = {}
 ) {
@@ -226,9 +230,10 @@ private fun HistoryGrid(
                 )
             }
         } else {
-            items(items = visibleChecks, key = { it.product.id }) { check ->
+            items(items = visibleChecks, key = { it.product.barcode }) { check ->
                 ProductHistoryItem(
                     check = check,
+                    onClick = { onOpenProduct(check.product.barcode) },
                     modifier = Modifier.animateItem()
                 )
             }
@@ -249,10 +254,8 @@ private fun LazyGridScope.fullWidthItem(
 
 private val previewState = MainUiState(
     isLoading = false,
-    profile = MockProductRepository.sampleProfile,
-    checks = MockProductRepository.sampleHistory.map {
-        it.checkFor(MockProductRepository.sampleProfile)
-    }
+    profile = PreviewData.profile,
+    checks = PreviewData.checks
 )
 
 @Preview(name = "Телефон", showBackground = true, widthDp = 400, heightDp = 860)
@@ -263,7 +266,9 @@ private fun MainScreenPhonePreview() {
             state = previewState,
             widthSizeClass = WindowWidthSizeClass.Compact,
             onEvent = {},
-            onOpenProfile = {}
+            onOpenProfile = {},
+            onOpenScanner = {},
+            onOpenProduct = {}
         )
     }
 }
@@ -282,7 +287,9 @@ private fun MainScreenDarkPreview() {
             state = previewState.copy(searchQuery = "хлеб"),
             widthSizeClass = WindowWidthSizeClass.Compact,
             onEvent = {},
-            onOpenProfile = {}
+            onOpenProfile = {},
+            onOpenScanner = {},
+            onOpenProduct = {}
         )
     }
 }
@@ -295,7 +302,9 @@ private fun MainScreenTabletPreview() {
             state = previewState,
             widthSizeClass = WindowWidthSizeClass.Expanded,
             onEvent = {},
-            onOpenProfile = {}
+            onOpenProfile = {},
+            onOpenScanner = {},
+            onOpenProduct = {}
         )
     }
 }

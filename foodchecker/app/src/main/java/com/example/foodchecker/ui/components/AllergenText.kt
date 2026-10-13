@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.foodchecker.R
-import com.example.foodchecker.model.Allergen
+import com.example.foodchecker.domain.model.Allergen
 
 @StringRes
 fun Allergen.titleRes(): Int = when (this) {

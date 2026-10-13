@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">FoodChecker</string>
+    <string name="back">Назад</string>
 
     <string name="history_title">История проверок</string>
     <string name="history_count">Всего: %1$d</string>
@@ -10,14 +11,12 @@
     <string name="search_placeholder">Название, бренд или штрихкод</string>
     <string name="search_clear">Очистить поиск</string>
     <string name="product_subtitle">%1$s · %2$s</string>
-    <string name="product_found_allergens">Найдено: %1$s</string>
+    <string name="product_found_issues">Найдено: %1$s</string>
+    <string name="scan">Сканировать</string>
 
     <string name="verdict_safe">Безопасно</string>
     <string name="verdict_dangerous">Противопоказано</string>
     <string name="verdict_unknown">Нет данных</string>
-
-    <string name="scan">Сканировать</string>
-    <string name="scan_unavailable">Сканер штрихкодов появится в следующей версии</string>
 
     <string name="profile_title">Профиль</string>
     <string name="profile_open">Открыть профиль</string>
@@ -26,10 +25,46 @@
     <string name="profile_name_label">Имя</string>
     <string name="profile_name_error">Введите имя</string>
     <string name="profile_allergens_title">Критические аллергены</string>
-    <string name="profile_allergens_hint">Отметьте компоненты, которые вам противопоказаны. Вердикты в истории пересчитаются автоматически.</string>
+    <string name="profile_allergens_hint">Отметьте компоненты, которые вам противопоказаны. Вердикты пересчитаются автоматически.</string>
     <string name="profile_allergens_selected">Выбрано: %1$d</string>
     <string name="profile_allergens_empty">Аллергены не указаны</string>
-    <string name="back">Назад</string>
+
+    <string name="details_title">Разбор состава</string>
+    <string name="details_scanned_at">Проверено %1$s</string>
+    <string name="details_not_found_title">Товар не найден</string>
+    <string name="details_not_found_hint">Этого товара нет в истории проверок</string>
+    <string name="verdict_reason_allergens">Содержит ваши аллергены: %1$s</string>
+    <string name="verdict_reason_additives">Вредные добавки: %1$s</string>
+    <string name="verdict_reason_safe">Опасных для вас компонентов не найдено</string>
+    <string name="verdict_reason_unknown">Производитель не указал состав, проверить продукт невозможно</string>
+    <string name="composition_title">Состав</string>
+    <string name="composition_empty">Состав не указан</string>
+    <string name="legend_high">Опасно для вас</string>
+    <string name="legend_medium">Требует внимания</string>
+    <string name="legend_low">Безопасная добавка</string>
+    <string name="allergens_title">Аллергены</string>
+    <string name="allergens_none">Аллергены не обнаружены</string>
+    <string name="allergen_critical">Ваш аллерген</string>
+    <string name="additives_title">Пищевые добавки</string>
+    <string name="additives_none">Пищевые добавки не обнаружены</string>
+    <string name="additive_unknown">Нет данных в медицинском реестре</string>
+    <string name="risk_high">Высокий риск</string>
+    <string name="risk_medium">Умеренный риск</string>
+    <string name="risk_low">Низкий риск</string>
+
+    <string name="scanner_title">Сканирование</string>
+    <string name="scan_hint">Наведите камеру на штрихкод на упаковке</string>
+    <string name="scan_searching">Ищем товар %1$s…</string>
+    <string name="scan_not_found_title">Товар не найден</string>
+    <string name="scan_not_found_hint">Штрихкода %1$s нет в каталоге. Отсканируйте ещё раз или введите код вручную.</string>
+    <string name="scan_retry">Сканировать снова</string>
+    <string name="scan_manual_label">Штрихкод вручную</string>
+    <string name="scan_manual_hint">От 8 до 14 цифр</string>
+    <string name="scan_manual_search">Найти</string>
+    <string name="camera_permission_title">Нет доступа к камере</string>
+    <string name="camera_permission_text">Разрешите доступ к камере, чтобы сканировать штрихкоды. Код можно ввести и вручную.</string>
+    <string name="camera_permission_grant">Разрешить</string>
+    <string name="camera_permission_settings">Открыть настройки</string>
 
     <string name="allergen_peanut">Арахис</string>
     <string name="allergen_tree_nuts">Орехи</string>

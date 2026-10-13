@@ -1,7 +1,7 @@
 package com.example.foodchecker.ui.profile
 
-import com.example.foodchecker.model.Allergen
-import com.example.foodchecker.model.UserProfile
+import com.example.foodchecker.domain.model.Allergen
+import com.example.foodchecker.domain.model.UserProfile
 
 data class ProfileUiState(
     val isLoading: Boolean = true,

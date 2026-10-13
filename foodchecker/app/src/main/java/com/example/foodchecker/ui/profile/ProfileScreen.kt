@@ -51,9 +51,9 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import com.example.foodchecker.R
-import com.example.foodchecker.model.Allergen
+import com.example.foodchecker.domain.model.Allergen
 import com.example.foodchecker.ui.components.Avatar
 import com.example.foodchecker.ui.components.LoadingPane
 import com.example.foodchecker.ui.components.title
@@ -62,7 +62,7 @@ import com.example.foodchecker.ui.theme.FoodCheckerTheme
 @Composable
 fun ProfileRoute(
     onBack: () -> Unit,
-    viewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
+    viewModel: ProfileViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

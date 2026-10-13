@@ -1,23 +1,18 @@
 package com.example.foodchecker.ui.profile
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.foodchecker.FoodCheckerApplication
-import com.example.foodchecker.data.ProductRepository
-import com.example.foodchecker.model.UserProfile
+import com.example.foodchecker.domain.model.UserProfile
+import com.example.foodchecker.domain.repository.ProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
-    private val repository: ProductRepository
+    private val profileRepository: ProfileRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -25,7 +20,7 @@ class ProfileViewModel(
 
     init {
         viewModelScope.launch {
-            val profile = repository.profile.first()
+            val profile = profileRepository.profile.first()
             _uiState.value = ProfileUiState(
                 isLoading = false,
                 name = profile.name,
@@ -35,7 +30,11 @@ class ProfileViewModel(
     }
 
     fun onEvent(event: ProfileEvent) {
-        _uiState.update { state ->
+        // Пока профиль не загружен, правки игнорируются: иначе загрузка в init
+        // перезаписала бы их, а сохранение было бы пропущено.
+        if (_uiState.value.isLoading) return
+
+        val newState = _uiState.updateAndGet { state ->
             when (event) {
                 is ProfileEvent.NameChanged -> state.copy(name = event.name)
                 is ProfileEvent.AllergenToggled -> state.copy(
@@ -47,25 +46,14 @@ class ProfileViewModel(
                 )
             }
         }
-        saveProfile()
+        saveProfile(newState)
     }
 
-    private fun saveProfile() {
-        val state = _uiState.value
-        if (state.isLoading) return
+    private fun saveProfile(state: ProfileUiState) {
         viewModelScope.launch {
-            repository.updateProfile(
+            profileRepository.updateProfile(
                 UserProfile(name = state.name.trim(), criticalAllergens = state.selectedAllergens)
             )
-        }
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = this[APPLICATION_KEY] as FoodCheckerApplication
-                ProfileViewModel(application.repository)
-            }
         }
     }
 }

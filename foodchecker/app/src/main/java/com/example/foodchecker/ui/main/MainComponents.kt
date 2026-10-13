@@ -46,13 +46,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.foodchecker.R
-import com.example.foodchecker.model.Allergen
-import com.example.foodchecker.model.ProductCheck
-import com.example.foodchecker.model.UserProfile
+import com.example.foodchecker.domain.model.Allergen
+import com.example.foodchecker.domain.model.ProductCheck
+import com.example.foodchecker.domain.model.UserProfile
 import com.example.foodchecker.ui.components.Avatar
 import com.example.foodchecker.ui.components.VerdictBadge
 import com.example.foodchecker.ui.components.title
-import com.example.foodchecker.ui.components.titles
 import com.example.foodchecker.ui.theme.FoodCheckerTheme
 import java.time.format.DateTimeFormatter
 
@@ -201,12 +200,15 @@ fun HistoryHeader(
 @Composable
 fun ProductHistoryItem(
     check: ProductCheck,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val product = check.product
     val dangerousColor = FoodCheckerTheme.verdictColors.dangerous
+    val issues = check.criticalAllergens.sorted().map { it.title() } + check.harmfulAdditives.map { it.marker }
 
     Card(
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
@@ -238,14 +240,14 @@ fun ProductHistoryItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 AnimatedVisibility(
-                    visible = check.matchedAllergens.isNotEmpty(),
+                    visible = issues.isNotEmpty(),
                     enter = fadeIn() + expandVertically(),
                     exit = fadeOut() + shrinkVertically()
                 ) {
                     Text(
                         text = stringResource(
-                            R.string.product_found_allergens,
-                            check.matchedAllergens.titles()
+                            R.string.product_found_issues,
+                            issues.joinToString(", ")
                         ),
                         style = MaterialTheme.typography.labelSmall,
                         color = dangerousColor,

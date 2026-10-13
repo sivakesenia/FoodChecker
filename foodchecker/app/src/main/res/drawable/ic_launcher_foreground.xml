@@ -13,14 +13,14 @@
         android:fillColor="#FFFFFF"
         android:pathData="M40,41h2.5v26h-2.5z M44.5,41h1.5v26h-1.5z M48,41h3v26h-3z M53,41h1.5v26h-1.5z M56.5,41h2.5v26h-2.5z M61,41h1.5v26h-1.5z M64.5,41h3v26h-3z" />
     <path
-        android:fillColor="#2E7D32"
+        android:fillColor="#4355B9"
         android:pathData="M69,56 A13,13 0 1,1 69,82 A13,13 0 1,1 69,56 Z" />
     <path
-        android:fillColor="#FFC107"
+        android:fillColor="#FFB68F"
         android:pathData="M69,58.5 A10.5,10.5 0 1,1 69,79.5 A10.5,10.5 0 1,1 69,58.5 Z" />
     <path
         android:pathData="M64,69.2 L67.6,72.8 L74.2,66.2"
-        android:strokeColor="#1B5E20"
+        android:strokeColor="#00105C"
         android:strokeWidth="3"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />

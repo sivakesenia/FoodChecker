@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.foodchecker.R
-import com.example.foodchecker.model.Verdict
+import com.example.foodchecker.domain.model.Verdict
 import com.example.foodchecker.ui.theme.FoodCheckerTheme
 
 @Composable
@@ -80,13 +80,13 @@ fun Verdict.color(): Color {
     }
 }
 
-private fun Verdict.icon(): ImageVector = when (this) {
+fun Verdict.icon(): ImageVector = when (this) {
     Verdict.SAFE -> Icons.Filled.CheckCircle
     Verdict.DANGEROUS -> Icons.Filled.Warning
     Verdict.UNKNOWN -> Icons.Filled.Info
 }
 
-private fun Verdict.labelRes(): Int = when (this) {
+fun Verdict.labelRes(): Int = when (this) {
     Verdict.SAFE -> R.string.verdict_safe
     Verdict.DANGEROUS -> R.string.verdict_dangerous
     Verdict.UNKNOWN -> R.string.verdict_unknown

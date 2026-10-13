@@ -1,7 +1,7 @@
 package com.example.foodchecker.ui.main
 
-import com.example.foodchecker.model.ProductCheck
-import com.example.foodchecker.model.UserProfile
+import com.example.foodchecker.domain.model.ProductCheck
+import com.example.foodchecker.domain.model.UserProfile
 
 data class MainUiState(
     val isLoading: Boolean = true,

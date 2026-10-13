@@ -1,9 +1,18 @@
 package com.example.foodchecker
 
 import android.app.Application
-import com.example.foodchecker.data.MockProductRepository
-import com.example.foodchecker.data.ProductRepository
+import com.example.foodchecker.di.appModules
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 
 class FoodCheckerApplication : Application() {
-    val repository: ProductRepository by lazy { MockProductRepository() }
+    override fun onCreate() {
+        super.onCreate()
+        startKoin {
+            androidLogger()
+            androidContext(this@FoodCheckerApplication)
+            modules(appModules)
+        }
+    }
 }
