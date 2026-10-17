@@ -82,13 +82,16 @@ fun ProductHeader(
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = stringResource(R.string.details_scanned_at, product.scannedAt.format(DateFormatter)),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
+        Text(
+            text = stringResource(
+                R.string.details_scan_info,
+                product.scannedAt.format(DateFormatter),
+                product.scanCount
+            ),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -253,6 +256,10 @@ fun AllergensSection(
                             text = finding.marker.description,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Tag(
+                            text = stringResource(finding.marker.risk.labelRes()),
+                            color = finding.marker.risk.color()
                         )
                     }
                 }

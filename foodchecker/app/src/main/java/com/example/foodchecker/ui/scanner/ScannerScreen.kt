@@ -418,8 +418,8 @@ private fun ScannerNotFoundPreview() {
         ScannerScreen(
             state = ScannerUiState(
                 cameraPermission = CameraPermission.GRANTED,
-                manualBarcode = "4600000000000",
-                status = ScanStatus.NotFound("4600000000000")
+                manualBarcode = "4600000000015",
+                status = ScanStatus.NotFound("4600000000015")
             ),
             widthSizeClass = WindowWidthSizeClass.Compact,
             onEvent = {},

@@ -14,7 +14,8 @@ data class ScannedProduct(
     val name: String,
     val brand: String,
     val ingredients: String?,
-    val scannedAt: LocalDate
+    val scannedAt: LocalDate,
+    val scanCount: Int = 1
 ) {
     fun matches(query: String): Boolean =
         name.contains(query, ignoreCase = true) ||

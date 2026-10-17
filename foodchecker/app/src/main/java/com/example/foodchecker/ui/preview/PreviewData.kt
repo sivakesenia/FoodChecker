@@ -3,29 +3,21 @@ package com.example.foodchecker.ui.preview
 import com.example.foodchecker.domain.model.Additive
 import com.example.foodchecker.domain.model.Allergen
 import com.example.foodchecker.domain.model.AllergenMarker
+import com.example.foodchecker.domain.model.MedicalRegistry
 import com.example.foodchecker.domain.model.ProductCheck
 import com.example.foodchecker.domain.model.ProductDetails
 import com.example.foodchecker.domain.model.RiskLevel
 import com.example.foodchecker.domain.model.ScannedProduct
 import com.example.foodchecker.domain.model.UserProfile
-import com.example.foodchecker.domain.repository.MedicalRegistry
 import com.example.foodchecker.domain.usecase.AnalyzeIngredientsUseCase
 import java.time.LocalDate
 
-/**
- * Данные только для @Preview.
- *
- * UI-слой не обращается к реализациям из пакета data: превью получают
- * собственную фейковую реализацию доменного интерфейса [MedicalRegistry]
- * и набор демонстрационных товаров.
- */
 internal object PreviewData {
 
-    const val SAUSAGE_BARCODE = "4607012345678"
-    const val MAYONNAISE_BARCODE = "4600987123450"
-    const val NUT_BAR_BARCODE = "4680019651234"
+    const val SAUSAGE_BARCODE = "4607012345677"
+    const val MAYONNAISE_BARCODE = "4600987123455"
+    const val NUT_BAR_BARCODE = "4680019651231"
 
-    // Объявлено до products: свойства object инициализируются по порядку.
     private val BaseDate: LocalDate = LocalDate.of(2026, 9, 14)
 
     val profile = UserProfile(
@@ -33,7 +25,7 @@ internal object PreviewData {
         criticalAllergens = setOf(Allergen.PEANUT, Allergen.LACTOSE, Allergen.GLUTEN)
     )
 
-    private val analyzer = AnalyzeIngredientsUseCase(PreviewMedicalRegistry)
+    private val analyzer = AnalyzeIngredientsUseCase()
 
     private val products: List<ScannedProduct> = listOf(
         product(
@@ -43,19 +35,19 @@ internal object PreviewData {
             ingredients = "Арахис жареный (35%), сахар, патока, лесной орех, соевый белок, эмульгатор E322, соль, ароматизатор ванилин."
         ),
         product(
-            barcode = "4607025392012",
+            barcode = "4607025392019",
             name = "Йогурт натуральный 2,5%",
             brand = "MilkHouse",
             ingredients = "Молоко нормализованное, закваска йогуртовых культур."
         ),
         product(
-            barcode = "4601234567890",
+            barcode = "4601234567893",
             name = "Рисовые хлебцы",
             brand = "GrainLife",
             ingredients = "Рис цельнозерновой, соль."
         ),
         product(
-            barcode = "4600123409876",
+            barcode = "4600123409870",
             name = "Овсяное печенье",
             brand = "GrainLife",
             ingredients = null
@@ -81,11 +73,11 @@ internal object PreviewData {
     ).mapIndexed { index, item -> item.copy(scannedAt = BaseDate.minusDays(index.toLong())) }
 
     val checks: List<ProductCheck>
-        get() = products.map { analyzer.check(it, profile) }
+        get() = products.map { analyzer.check(it, profile, PreviewRegistry.registry) }
 
     fun details(barcode: String): ProductDetails {
         val product = products.first { it.barcode == barcode }
-        return ProductDetails(product, analyzer(product.ingredients, profile))
+        return ProductDetails(product, analyzer(product.ingredients, profile, PreviewRegistry.registry))
     }
 
     private fun product(barcode: String, name: String, brand: String, ingredients: String?) =
@@ -98,7 +90,7 @@ internal object PreviewData {
         )
 }
 
-private object PreviewMedicalRegistry : MedicalRegistry {
+private object PreviewRegistry {
 
     private val additives = listOf(
         additive("E202", "Сорбат калия", "Консервант, подавляет рост плесени и дрожжей. Считается безопасным.", RiskLevel.LOW),
@@ -123,13 +115,8 @@ private object PreviewMedicalRegistry : MedicalRegistry {
         marker(Allergen.MUSTARD, "Горчица вызывает реакции вплоть до анафилаксии.", "горчиц", "горчичн")
     )
 
-    private val byMarker = additives.associateBy { it.marker.lowercase() }
-
-    override fun additives(): List<Additive> = additives
-
-    override fun allergenMarkers(): List<AllergenMarker> = allergenMarkers
-
-    override fun findAdditive(marker: String): Additive? = byMarker[marker.lowercase()]
+    val registry: MedicalRegistry
+        get() = MedicalRegistry(additives = additives, allergenMarkers = allergenMarkers)
 
     private fun additive(marker: String, name: String, description: String, risk: RiskLevel) =
         Additive(id = marker.lowercase(), marker = marker, name = name, description = description, risk = risk)

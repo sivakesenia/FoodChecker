@@ -1,11 +1,18 @@
 package com.example.foodchecker.di
 
-import com.example.foodchecker.data.local.InMemoryHistoryRepository
-import com.example.foodchecker.data.local.InMemoryProfileRepository
-import com.example.foodchecker.data.registry.InMemoryMedicalRegistry
+import androidx.room.Room
+import com.example.foodchecker.data.init.AppDataInitializer
+import com.example.foodchecker.data.json.AssetJsonDataSource
+import com.example.foodchecker.data.local.RoomHistoryRepository
+import com.example.foodchecker.data.local.RoomProfileRepository
+import com.example.foodchecker.data.local.db.FoodCheckerDatabase
+import com.example.foodchecker.data.preferences.AppSettingsDataSource
+import com.example.foodchecker.data.preferences.settingsDataStore
+import com.example.foodchecker.data.registry.RealmMedicalRegistryRepository
+import com.example.foodchecker.data.registry.RegistryRealmProvider
 import com.example.foodchecker.data.remote.FakeProductCatalog
 import com.example.foodchecker.domain.repository.HistoryRepository
-import com.example.foodchecker.domain.repository.MedicalRegistry
+import com.example.foodchecker.domain.repository.MedicalRegistryRepository
 import com.example.foodchecker.domain.repository.ProductCatalog
 import com.example.foodchecker.domain.repository.ProfileRepository
 import com.example.foodchecker.domain.usecase.AnalyzeIngredientsUseCase
@@ -18,6 +25,8 @@ import com.example.foodchecker.ui.profile.ProfileViewModel
 import com.example.foodchecker.ui.scanner.ScannerViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
@@ -28,22 +37,55 @@ import java.time.Clock
 
 val dispatchersModule = module {
     single<CoroutineDispatcher>(AppDispatchers.Default) { Dispatchers.Default }
+    single<CoroutineDispatcher>(AppDispatchers.IO) { Dispatchers.IO }
+}
+
+val storageModule = module {
+    single {
+        Json { ignoreUnknownKeys = true }
+    }
+    single { androidContext().settingsDataStore }
+    single {
+        Room.databaseBuilder(androidContext(), FoodCheckerDatabase::class.java, FoodCheckerDatabase.NAME)
+            .build()
+    }
+    single { get<FoodCheckerDatabase>().profileDao() }
+    single { get<FoodCheckerDatabase>().historyDao() }
+    single { RegistryRealmProvider(ioDispatcher = get(AppDispatchers.IO)) }
+    single {
+        AssetJsonDataSource(
+            context = androidContext(),
+            json = get(),
+            ioDispatcher = get(AppDispatchers.IO)
+        )
+    }
+    singleOf(::AppSettingsDataSource)
+    single {
+        AppDataInitializer(
+            assets = get(),
+            settings = get(),
+            realmProvider = get(),
+            database = get(),
+            ioDispatcher = get(AppDispatchers.IO)
+        )
+    }
 }
 
 val dataModule = module {
-    singleOf(::InMemoryProfileRepository) { bind<ProfileRepository>() }
-    singleOf(::InMemoryHistoryRepository) { bind<HistoryRepository>() }
+    singleOf(::RoomProfileRepository) { bind<ProfileRepository>() }
+    singleOf(::RoomHistoryRepository) { bind<HistoryRepository>() }
+    singleOf(::RealmMedicalRegistryRepository) { bind<MedicalRegistryRepository>() }
     singleOf(::FakeProductCatalog) { bind<ProductCatalog>() }
-    singleOf(::InMemoryMedicalRegistry) { bind<MedicalRegistry>() }
     single<Clock> { Clock.systemDefaultZone() }
 }
 
 val domainModule = module {
-    factoryOf(::AnalyzeIngredientsUseCase)
+    singleOf(::AnalyzeIngredientsUseCase)
     factory {
         ObserveHistoryUseCase(
             historyRepository = get(),
             profileRepository = get(),
+            registryRepository = get(),
             analyzeIngredients = get(),
             defaultDispatcher = get(AppDispatchers.Default)
         )
@@ -52,6 +94,7 @@ val domainModule = module {
         ObserveProductDetailsUseCase(
             historyRepository = get(),
             profileRepository = get(),
+            registryRepository = get(),
             analyzeIngredients = get(),
             defaultDispatcher = get(AppDispatchers.Default)
         )
@@ -71,4 +114,4 @@ val presentationModule = module {
     }
 }
 
-val appModules = listOf(dispatchersModule, dataModule, domainModule, presentationModule)
+val appModules = listOf(dispatchersModule, storageModule, dataModule, domainModule, presentationModule)

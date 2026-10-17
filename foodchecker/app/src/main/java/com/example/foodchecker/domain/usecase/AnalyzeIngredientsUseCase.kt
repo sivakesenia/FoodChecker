@@ -5,30 +5,35 @@ import com.example.foodchecker.domain.model.AllergenMarker
 import com.example.foodchecker.domain.model.ComponentRisk
 import com.example.foodchecker.domain.model.IngredientAnalysis
 import com.example.foodchecker.domain.model.IngredientToken
+import com.example.foodchecker.domain.model.MedicalRegistry
 import com.example.foodchecker.domain.model.ProductCheck
 import com.example.foodchecker.domain.model.RiskLevel
 import com.example.foodchecker.domain.model.ScannedProduct
 import com.example.foodchecker.domain.model.UserProfile
 import com.example.foodchecker.domain.model.Verdict
-import com.example.foodchecker.domain.repository.MedicalRegistry
 import java.util.concurrent.ConcurrentHashMap
 
-class AnalyzeIngredientsUseCase(
-    private val registry: MedicalRegistry
-) {
+class AnalyzeIngredientsUseCase {
 
-    // Скомпилированные регулярные выражения исключений, чтобы не собирать их для каждого компонента.
     private val exclusionCache = ConcurrentHashMap<String, Regex>()
 
-    operator fun invoke(ingredients: String?, profile: UserProfile): IngredientAnalysis {
+    operator fun invoke(
+        ingredients: String?,
+        profile: UserProfile,
+        registry: MedicalRegistry
+    ): IngredientAnalysis {
         if (ingredients.isNullOrBlank()) return IngredientAnalysis.Empty
 
         val tokens = tokenize(ingredients).map { (text, isSeparator) ->
-            if (isSeparator) IngredientToken(text = text, isSeparator = true) else analyzeComponent(text, profile)
+            if (isSeparator) {
+                IngredientToken(text = text, isSeparator = true)
+            } else {
+                analyzeComponent(text, profile, registry)
+            }
         }
         val components = tokens.filterNot { it.isSeparator }
         val foundAllergens = components.flatMap { it.allergens }.toSet()
-        val findings = registry.allergenMarkers()
+        val findings = registry.allergenMarkers
             .filter { it.allergen in foundAllergens }
             .map { AllergenFinding(marker = it, isCritical = it.allergen in profile.criticalAllergens) }
             .sortedByDescending { it.isCritical }
@@ -48,8 +53,8 @@ class AnalyzeIngredientsUseCase(
         )
     }
 
-    fun check(product: ScannedProduct, profile: UserProfile): ProductCheck {
-        val analysis = invoke(product.ingredients, profile)
+    fun check(product: ScannedProduct, profile: UserProfile, registry: MedicalRegistry): ProductCheck {
+        val analysis = invoke(product.ingredients, profile, registry)
         return ProductCheck(
             product = product,
             verdict = analysis.verdict,
@@ -58,16 +63,20 @@ class AnalyzeIngredientsUseCase(
         )
     }
 
-    private fun analyzeComponent(text: String, profile: UserProfile): IngredientToken {
+    private fun analyzeComponent(
+        text: String,
+        profile: UserProfile,
+        registry: MedicalRegistry
+    ): IngredientToken {
         val lower = text.lowercase()
-        val allergens = registry.allergenMarkers()
+        val allergens = registry.allergenMarkers
             .filter { marker -> marker.matches(lower) }
             .map { it.allergen }
             .toSet()
         val codes = AdditiveCodePattern.findAll(text).map { normalizeCode(it) }.distinct().toList()
         val additivesByCode = codes.mapNotNull { registry.findAdditive(it) }
         val unknownCodes = codes.filter { registry.findAdditive(it) == null }
-        val additivesByName = registry.additives().filter { additive ->
+        val additivesByName = registry.additives.filter { additive ->
             additive.synonyms.any { lower.contains(it) }
         }
         val additives = (additivesByCode + additivesByName).distinctBy { it.id }

@@ -15,16 +15,30 @@ data class Additive(
     val synonyms: List<String> = emptyList()
 )
 
-/**
- * @param keywords основы слов, по которым аллерген ищется в составе.
- * @param exclusions регулярные выражения для словосочетаний, где ключевое слово
- * не означает этот аллерген (например, «мускатный орех» — пряность, а не орех).
- * Совпадения с исключениями вырезаются из текста до поиска ключевых слов.
- */
 data class AllergenMarker(
     val id: String,
     val allergen: Allergen,
     val keywords: List<String>,
     val description: String,
+    val risk: RiskLevel = RiskLevel.HIGH,
     val exclusions: List<String> = emptyList()
 )
+
+data class MedicalRegistry(
+    val additives: List<Additive>,
+    val allergenMarkers: List<AllergenMarker>
+) {
+    private val additivesByMarker: Map<String, Additive> = additives.associateBy { it.marker.lowercase() }
+
+    val isEmpty: Boolean
+        get() = additives.isEmpty() && allergenMarkers.isEmpty()
+
+    fun findAdditive(marker: String): Additive? {
+        val key = marker.lowercase()
+        return additivesByMarker[key] ?: additivesByMarker[key.trimEnd { it.isLetter() }]
+    }
+
+    companion object {
+        val Empty = MedicalRegistry(additives = emptyList(), allergenMarkers = emptyList())
+    }
+}

@@ -30,8 +30,6 @@ class ProfileViewModel(
     }
 
     fun onEvent(event: ProfileEvent) {
-        // Пока профиль не загружен, правки игнорируются: иначе загрузка в init
-        // перезаписала бы их, а сохранение было бы пропущено.
         if (_uiState.value.isLoading) return
 
         val newState = _uiState.updateAndGet { state ->

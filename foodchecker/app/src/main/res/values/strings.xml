@@ -30,7 +30,7 @@
     <string name="profile_allergens_empty">Аллергены не указаны</string>
 
     <string name="details_title">Разбор состава</string>
-    <string name="details_scanned_at">Проверено %1$s</string>
+    <string name="details_scan_info">Последняя проверка %1$s · всего проверок: %2$d</string>
     <string name="details_not_found_title">Товар не найден</string>
     <string name="details_not_found_hint">Этого товара нет в истории проверок</string>
     <string name="verdict_reason_allergens">Содержит ваши аллергены: %1$s</string>
